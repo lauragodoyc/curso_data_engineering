@@ -2,6 +2,7 @@ version: 2
 
 sources:
   - name: sql_server_dbo # name of the source
+    description: Raw data for events demo from SQL_Server Database.
     schema: sql_server_dbo # this is the schema our raw data lives in
     database: ALUMNO29_DEV_BRONZE_DB # this is the name of our database
 
@@ -16,57 +17,129 @@ sources:
 
     tables:
       - name: addresses
+       
         loaded_at_field: _fivetran_synced
         columns:
           - name: address_id
+            
             tests:
               - unique
               - not_null
           - name: zipcode
+            
           - name: country
+            
           - name: address
+            
           - name: state
+            
           - name: _fivetran_deleted
+            
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
 
       - name: events
+        description: Data about events in the platform of demo.
         loaded_at_field: _fivetran_synced
         columns:
           - name: event_id
+            description: UUID of each unique event on the platform.
             tests:
               - unique
               - not_null
           - name: page_url
+            description: >
+              URL that the event happened on.
+            tests:
+              - not_null
           - name: event_type
+            description: >
+              Type of event.
+            tests:
+              - not_null
           - name: user_id
+            description: >
+              UUID of the user that this event is associated with.
+            tests:
+              - not_null
+              - relationships:
+                  to: ref('stg_users')
+                  field: user_id
           - name: product_id
+            tests:
+              - relationships:
+                  to: ref('stg_products')
+                  field: product_id
+            description: >
+              If the event is specific to a product.
           - name: session_id
+            description: >
+              UUID of each browsing session on the platform which can contain many events.
+            tests:
+              - not_null
           - name: created_at
+            description: >
+              Timestamp of the event (UTC).
+            tests:
+              - not_null
           - name: order_id
+            tests:
+              - relationships:
+                  to: ref('stg_order_items')
+                  field: order_id
+            description: >
+              If the event is specific to an order (mostly used for checkout).
+              
           - name: _fivetran_deleted
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
 
       - name: orders
         loaded_at_field: _fivetran_synced
         columns:
           - name: order_id
             tests:
-             - unique
-             - not_null
+              - relationships:
+                  to: ref('stg_order_items')
+                  field: order_id
+              - unique
+              - not_null
           - name: shipping_service
           - name: shipping_cost
           - name: address_id
+            tests:
+              - relationships:
+                  to: ref('stg_addresses')
+                  field: address_id
           - name: created_at
           - name: promo_id
+            tests:
+              - relationships:
+                  to: ref('stg_promos')
+                  field: promo_id
           - name: estimated_delivery_at
           - name: order_cost
           - name: user_id
+            tests:
+              - relationships:
+                  to: ref('stg_users')
+                  field: user_id
           - name: order_total
           - name: delivered_at
           - name: tacking_id
           - name: status
           - name: _fivetran_deleted
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
 
       - name: order_items
         loaded_at_field: _fivetran_synced
@@ -79,6 +152,10 @@ sources:
           - name: quantity
           - name: _fivetran_deleted
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
 
       - name: products
         loaded_at_field: _fivetran_synced
@@ -92,6 +169,10 @@ sources:
           - name: inventory
           - name: _fivetran_deleted
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
 
       - name: promos
         loaded_at_field: _fivetran_synced
@@ -104,6 +185,10 @@ sources:
           - name: status
           - name: _fivetran_deleted
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
 
       - name: users
         loaded_at_field: _fivetran_synced
@@ -114,6 +199,10 @@ sources:
               - not_null
           - name: updated_at
           - name: address_id
+            tests:
+              - relationships:
+                  to: ref('stg_addresses')
+                  field: address_id
           - name: last_name
           - name: created_at
           - name: phone_number
@@ -122,3 +211,7 @@ sources:
           - name: email
           - name: _fivetran_deleted
           - name: _fivetran_synced
+            description: >
+              Date that the data was loaded.
+            tests:
+              - not_null
