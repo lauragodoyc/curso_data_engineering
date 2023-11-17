@@ -20,7 +20,8 @@ renamed as (
         user_id,
         order_total,
         delivered_at,
-        tracking_id,
+        decode(tracking_id,'', 'not generated yet', tracking_id) as tracking_id,
+        
         status,
         _fivetran_deleted,
         _fivetran_synced
