@@ -7,7 +7,7 @@ with
     renamed as (
 
         select
-            decode(promo_id,'', '999', promo_id)::varchar as id_promo,
+            promo_id,
             promo_id as promo_description,
             discount,
             status,
@@ -37,5 +37,5 @@ from renamed2
 union all
 (
 select 
-'9999' as id_promo, 'Not promo' as desc_id_promo, '0' as discount, 'inactive' as status, '0' as _fivetran_deleted, '0' as _fivetran_synced)
+'9999' as id_promo, 'Not promo' as promo_description, '0' as discount, 'inactive' as status, '0' as _fivetran_deleted, '0' as _fivetran_synced)
 

@@ -124,12 +124,6 @@ sources:
                   to: ref('stg_addresses')
                   field: address_id
           - name: created_at
-          - name: promo_id_key
-            tests:
-              - relationships:
-                  to: ref('stg_promos')
-                  field: promo_id_key
-                  where: length(promo_id_key)>0 or not null
           - name: estimated_delivery_at
           - name: order_cost
             tests:
