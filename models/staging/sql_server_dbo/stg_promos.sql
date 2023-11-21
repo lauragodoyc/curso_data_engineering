@@ -25,7 +25,7 @@ with
             upper(promo_description) as promo_description,
             discount,
             status,
-            _fivetran_deleted,
+            decode(_fivetran_deleted,null, '0', _fivetran_deleted) as _fivetran_deleted,
             _fivetran_synced
 
         from renamed
@@ -37,5 +37,5 @@ from renamed2
 union all
 (
 select 
-'9999' as id_promo, 'Not promo' as promo_description, '0' as discount, 'inactive' as status, '0' as _fivetran_deleted, '0' as _fivetran_synced)
+'999' as id_promo, 'Not promo' as promo_description, '0' as discount, 'inactive' as status, '0' as _fivetran_deleted, '0' as _fivetran_synced)
 
