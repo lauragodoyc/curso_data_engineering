@@ -1,19 +1,8 @@
-{{ config(
-    materialized='incremental',
-    unique_key = 'id_order'
-    ) 
-    }}
+with
 
-
-WITH stg_orders AS (
-    SELECT * 
-    FROM {{ source('sql_server_dbo','orders') }}
-{% if is_incremental() %}
-
-	  where _fivetran_synced > (select max(_fivetran_synced) from {{ this }})
-
-{% endif %}
-) , 
+    source as (
+        select * from {{ source("sql_server_dbo", "orders") }}
+        ),
 
     renamed as (
 
@@ -34,7 +23,7 @@ WITH stg_orders AS (
             status,
             _fivetran_deleted,
             _fivetran_synced
-        from stg_orders
+        from source
     ),   
 
 

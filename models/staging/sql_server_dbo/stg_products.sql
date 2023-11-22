@@ -9,11 +9,11 @@ source as (
 renamed as (
 
     select
-        product_id,
-        price,
+        product_id as id_product,
+        price as price_euro,
         name,
         inventory,
-        _fivetran_deleted,
+        decode(_fivetran_deleted,null, '0', _fivetran_deleted) as _fivetran_deleted,
         _fivetran_synced
 
     from source

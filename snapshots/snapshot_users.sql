@@ -11,6 +11,6 @@
 }}
 
 select *
- from {{ ref('prueba_incremental') }}
+ from {{ ref('prueba_incremental_users') }}
 
 {% endsnapshot %}
