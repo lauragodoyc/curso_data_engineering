@@ -2,19 +2,21 @@ with
 
 source as (
 
-    select * from {{ source('sql_server_dbo', 'order_items') }}
+    select * from {{ ref('base_order_items') }}
 
 ),
 
 renamed as (
 
     select
-        concat(order_id,'-',product_id) as id_product_order, 
+        id_order,
+        id_product,
+        id_product_order, 
         quantity,
-        decode(_fivetran_deleted,null, '0', _fivetran_deleted) as _fivetran_deleted,
+        _fivetran_deleted,
         _fivetran_synced
 
-    from source
+    from {{ ref('base_order_items') }}
 
 )
 

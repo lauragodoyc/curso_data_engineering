@@ -1,25 +1,27 @@
 with 
 
+source as (
+
+    select * from {{ ref('base_addresses') }}
+
+),
+
+
 
 
 renamed as (
 
     select
-        addresses.id_address,
-        users.id_user,
+        id_address,
         zipcode,
         country,
         address,
         state,
-        addresses._fivetran_deleted,
-        addresses._fivetran_synced
+        _fivetran_deleted,
+        _fivetran_synced
 
-    from {{ ref('base_addresses') }} addresses
-    left join {{ ref('base_users') }} users
-    on addresses.id_address=users.id_address
-
+from {{ ref('base_addresses') }}
 
 )
 
 select * from renamed
-    
