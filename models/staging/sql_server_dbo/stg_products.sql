@@ -9,8 +9,8 @@ source as (
 renamed as (
 
     select
-        id_product,
-        price_euro,
+        product_id as id_product,
+        price as price_euro,
         name,
         inventory,
         _fivetran_deleted,

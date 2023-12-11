@@ -1,0 +1,381 @@
+version: 2
+
+sources:
+  - name: sql_server_dbo # name of the source
+    description: Raw data for events demo from SQL_Server Database.
+    schema: sql_server_dbo # this is the schema our raw data lives in
+    database: "alumno29_dev_silver_db" # this is the name of our database
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    freshness:
+      warn_after: { count: 24, period: hour }
+      error_after: { count: 48, period: hour }
+
+    tables:
+      - name: stg_addresses
+        description: "Table containing address information."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: id_address
+            data_type: varchar
+            description: "Unique identifier for addresses."
+            tests:
+              - unique
+              - not_null
+          - name: zipcode
+            data_type: number
+            description: "Postal code used to identify specific geographical areas."
+            tests:
+              - not_null
+          - name: country
+            data_type: varchar
+            description: "Specifies the country associated with an address."
+            tests:
+              - not_null
+          - name: address
+            data_type: varchar
+            description: "Physical location details."
+            tests:
+              - not_null
+            
+          - name: state
+            data_type: varchar
+            description: "Region or administrative division within a country."
+            tests:
+              - not_null
+            
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null
+
+      - name: stg_events
+        description: "Data about events in the platform of demo."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: id_event
+            data_type: varchar
+            description: "UUID of each unique event on the platform."
+            tests:
+              - unique
+              - not_null
+          - name: page_url
+            data_type: varchar
+            description: "URL that the event happened on."
+            tests:
+              - not_null
+          - name: event_type
+            data_type: varchar
+            description: "Type of event."
+            tests:
+              - not_null
+              - accepted_values:
+                  values:
+                   - "checkout"
+                   - "package_shipped"
+                   - "add_to_cart"
+                   - "page_view"
+                  
+          - name: id_user
+            data_type: varchar
+            description: "UUID of the user that this event is associated with."
+            tests:
+              - not_null
+          - name: id_product
+            data_type: varchar
+            description: "If the event is specific to a product."
+          - name: id_session
+            data_type: varchar
+            description: "UUID of each browsing session on the platform which can contain many events."
+            tests:
+              - not_null
+          - name: created_at_time_utc
+            data_type: timestamp_ntz
+            description: "Timestamp of the event (UTC)."
+            tests:
+              - not_null
+          - name: created_at_date_utc
+            data_type: timestamp_ntz
+            description: "Timestamp of the event (UTC)."
+            tests:
+              - not_null              
+          - name: id_order
+            data_type: varchar
+            description: "If the event is specific to an order (mostly used for checkout)."
+
+          - name:  _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null
+
+      - name: stg_orders
+        description: "Table recording customer purchase details."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: id_order
+            description: "UUID of the each unique order."
+            data_type: varchar
+            tests:
+              - unique
+              - not_null
+          - name: shipping_service
+            description: "Indicates the shipping company or service provider."
+            data_type: varchar
+          - name: shipping_cost_euro
+            description: "Cost of shipping in euros for the order."
+            data_type: float
+            tests:
+              - dbt_utils.expression_is_true:
+                  expression: " >= 0"
+          - name: id_address
+            description: "Unique identifier for addresses within the 'orders' table."
+            data_type: varchar
+            tests:
+              - not_null
+          - name: created_at_time_utc
+            description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+             - not_null
+          - name: created_at_date_utc
+            description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+             - not_null             
+          - name: estimated_delivery_at_time_utc
+            description: "Anticipated delivery timestamp in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+              - not_null
+          - name: estimated_delivery_at_date_utc
+            description: "Anticipated delivery timestamp in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+              - not_null              
+          - name: order_cost_euro
+            description: "Total cost of the order in euros."
+            data_type: float
+            tests:
+              - dbt_utils.expression_is_true:
+                  expression: " >= 0"
+          - name: id_user
+            description: "Unique identifier for users associated with the orders."
+            data_type: varchar
+
+
+          - name: order_total_euro
+            description: "The total cost of the order, including items and shipping charges."
+            data_type: float
+            tests:
+              - dbt_utils.expression_is_true:
+                  expression: " >= 0"
+          - name: delivered_at_date_utc
+            description: "Timestamp indicating the delivery time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+          - name: delivered_at_time_utc
+            description: "Timestamp indicating the delivery time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz         
+          - name: id_promo
+            data_type: varchar
+            description: "Identifier for the promotional offer associated with the order."
+            tests:
+               - not_null
+          - name: id_tracking
+            description: "Tracking identification number linked to the order shipment."
+            data_type: varchar
+          - name: id_status
+            description: "Field indicating the status of the order."
+            data_type: varchar
+          - name:  _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null
+
+      - name: stg_order_items
+        description: "Table detailing products within orders."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: id_order
+            description: "Identifier unique to each order within the system."
+            data_type: varchar
+            tests:
+              - not_null
+          - name: id_product
+            description: "Unique identifier for each product within the order."
+            data_type: varchar
+            tests:
+              - not_null
+          - name: id_product_order
+            tests:
+              - unique 
+              - not_null
+              
+          - name: quantity
+            description: "The number of items of a particular product within an order."
+            data_type: number
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null
+      - name: stg_products
+        description: "Table with detailed product information, including names, prices..."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: id_product
+            description: varchar
+            data_type: "Unique identifier for each product."
+            tests:
+              - unique
+              - not_null
+          - name: price_euro
+            description: float
+            data_type: "The price of the product in euros."
+            tests:
+              - dbt_utils.expression_is_true:
+                  expression: ">= 0"
+          - name: name
+            description: "The name of the product."
+            data_type: varchar
+          - name: inventory
+            description: "The available quantity of the product in stock."
+            data_type: number
+            tests:
+              - dbt_utils.expression_is_true:
+                  expression: " >= 0"
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null
+      - name: stg_promos
+        description: "Table holding information about available promotions or discounts."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name:  id_promo
+            description: "Unique identifier for each promotion."
+            data_type: varchar
+            tests:
+              - unique
+              - not_null
+          - name: promo_description
+            description: "Description of the promotion."
+            data_type: varchar
+            tests:
+               - not_null
+
+          - name: discount_euro
+            description: "The discount amount in euros applied by the promotion."
+            data_type: number
+            tests:
+              - not_null
+          - name: id_status
+            description: "Identifier indicating the status of the promotion."
+            data_type: varchar
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null
+      - name: stg_users
+        description: "Table storing user information, including names, email addresses, and associated details."
+        loaded_at_field: _fivetran_synced
+        columns:
+          - name: id_user
+            description: "Unique identifier for each user."
+            data_type: varchar
+            tests:
+              - unique
+              - not_null
+          - name: updated_at_time_utc
+            description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+              - not_null
+          - name: updated_at_date_utc
+            description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+              - not_null
+          - name: id_address
+            description: "Unique identifier for addresses within the 'users' table."
+            data_type: varchar
+            tests:
+              - not_null
+          - name: last_name
+            description: "The user's surname or last name."
+            data_type: varchar
+            tests: 
+              - not_null
+          - name: created_at_time_utc
+            description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+              - not_null
+          - name: created_at_date_utc
+            description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+            tests:
+              - not_null              
+          - name: phone_number
+            description: "The user's phone number."
+            data_type: varchar
+            tests:
+              - not_null
+          - name: total_orders
+            description: "The total number of orders associated with the user."
+            data_type: number
+          - name: first_name
+            description: "The user's first name."
+            data_type: varchar
+          - name: email
+            description: "The user's email address."
+            data_type: varchar
+            tests:
+              - not_null
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
+            tests:
+              - not_null

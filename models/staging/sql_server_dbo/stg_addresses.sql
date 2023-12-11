@@ -12,13 +12,13 @@ source as (
 renamed as (
 
     select
-        id_address,
+        address_id as id_address,
         zipcode,
         country,
         address,
         state,
         _fivetran_deleted,
-        _fivetran_synced
+        _fivetran_synced 
 
 from {{ ref('base_addresses') }}
 

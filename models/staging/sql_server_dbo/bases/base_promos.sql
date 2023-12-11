@@ -20,7 +20,3 @@ with
 
 select *
 from renamed
-union all
-(
-select 
-'999' as id_promo,  '0' as discount, '0' as status, '0' as _fivetran_deleted, '0' as _fivetran_synced)

@@ -6,23 +6,27 @@ source as (
 
 ),
 
+
 renamed as (
 
     select
-        id_user,
-        updated_at_utz,
-        id_address,
+        user_id as id_user,
+        cast(updated_at as time) as updated_at_time_utc,
+        cast(updated_at as date) as updated_at_date_utc,
+        address_id as id_address,
         last_name,
-        created_at_utz,
+        cast(created_at as time) as created_at_time_utc,
+        cast(created_at as date) as created_at_date_utc,
         phone_number,
-        total_orders_euro,
+        decode(total_orders,null, '0',total_orders) as total_orders,
         first_name,
         email,
-         _fivetran_deleted,
+        _fivetran_deleted,
         _fivetran_synced
 
     from {{ ref('base_users') }}
 
 )
+
 
 select * from renamed

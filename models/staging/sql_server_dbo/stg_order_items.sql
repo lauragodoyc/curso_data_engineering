@@ -9,9 +9,9 @@ source as (
 renamed as (
 
     select
-        id_order,
-        id_product,
-        id_product_order, 
+        order_id as id_order,
+        product_id as id_product,
+        concat(order_id,'-',product_id) as id_product_order, 
         quantity,
         _fivetran_deleted,
         _fivetran_synced

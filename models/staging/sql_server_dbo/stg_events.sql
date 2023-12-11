@@ -9,14 +9,15 @@ source as (
 renamed as (
 
     select
-        id_event,
+        event_id as id_event,
         page_url,
         event_type,
-        id_user,
-        id_session,
-        id_order,
-        id_product,
-        created_at_utz,
+        user_id as id_user,
+        session_id as id_session,
+        decode(order_id,null, 'no id', order_id) as  id_order,
+        decode(product_id, null, 'no id', product_id) as id_product,
+        cast(created_at as time) as created_at_time_utc,
+        cast(created_at as date) as created_at_date_utc,        
         _fivetran_deleted,
         _fivetran_synced
 from {{ ref('base_events') }}

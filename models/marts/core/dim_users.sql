@@ -5,24 +5,33 @@ with
     select * from {{ ref('stg_users') }}
 
     ),
-
+total_orders as(
+    select id_user,
+    count(distinct(id_order)) as total_orders
+    from {{ ref('stg_orders') }}
+   group by id_user 
+    
+),
 renamed as (
 
     select
-        id_user,
-        updated_at_utz,
-        id_address,
+        users.id_user,
+        updated_at_time_utc,
+        updated_at_date_utc,
+        users.id_address,
         last_name,
-        created_at_utz,
+        created_at_time_utc,
+        created_at_date_utc,
         phone_number,
-        total_orders_euro,
+       orders.total_orders,
         first_name,
         email,
-        _fivetran_deleted,
-        _fivetran_synced
+    
+        users._fivetran_synced  as _fivetran_synced_utc
 
-    from source
-
+    from {{ ref('stg_users') }} users
+    left join total_orders orders
+    on orders.id_user=users.id_user
 )
 
 select * from renamed

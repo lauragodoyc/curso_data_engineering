@@ -25,7 +25,7 @@ WITH stg_orders AS (
             shipping_cost,
             address_id,
             created_at,
-            promo_id,
+
             estimated_delivery_at,
             order_cost,
             user_id,
