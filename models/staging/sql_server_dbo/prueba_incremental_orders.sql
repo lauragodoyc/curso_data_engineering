@@ -5,7 +5,7 @@
     }}
 
 
-WITH stg_orders AS (
+WITH orders AS (
     SELECT * 
     FROM {{ source('sql_server_dbo','orders') }}
 {% if is_incremental() %}
@@ -25,7 +25,6 @@ WITH stg_orders AS (
             shipping_cost,
             address_id,
             created_at,
-
             estimated_delivery_at,
             order_cost,
             user_id,
@@ -35,7 +34,7 @@ WITH stg_orders AS (
             status,
             _fivetran_deleted,
             _fivetran_synced
-        from {{ source('sql_server_dbo','orders') }}
+        from  orders
     )
 
 select * 

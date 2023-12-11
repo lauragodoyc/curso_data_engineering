@@ -9,7 +9,7 @@ with
 renamed as (
 
     select
-        user_id,
+        distinct(user_id) as user_id,
         updated_at,
         address_id,
         last_name,

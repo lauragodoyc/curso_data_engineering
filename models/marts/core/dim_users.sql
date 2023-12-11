@@ -15,7 +15,7 @@ total_orders as(
 renamed as (
 
     select
-        users.id_user,
+        distinct(users.id_user),
         updated_at_time_utc,
         updated_at_date_utc,
         users.id_address,

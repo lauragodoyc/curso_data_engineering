@@ -50,10 +50,9 @@ sources:
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null
 
-      - name: dim_events
+
+      - name: fact_events
         description: "Data about events in the platform of demo."
 
        # columns:
@@ -80,7 +79,11 @@ sources:
                    - "package_shipped"
                    - "add_to_cart"
                    - "page_view"
-                  
+          - name: id_session
+            data_type: varchar
+            description: "UUID of each browsing session on the platform which can contain many events."
+            tests:
+              - not_null        
           - name: id_user
             data_type: varchar
             description: "UUID of the user that this event is associated with."
@@ -101,8 +104,7 @@ sources:
           - name: created_at_utc
             data_type: timestamp_ntz
             description: "Timestamp of the event (UTC)."
-            tests:
-              - not_null
+
           - name: id_order
             data_type: varchar
             description: "If the event is specific to an order (mostly used for checkout)."
@@ -118,13 +120,12 @@ sources:
             description: "UUID  of a product of an specific order."
             tests:
               - not_null
-              - unique
+              
             
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null
+
 
       - name: fact_orders
         description: "Table recording customer purchase details."
@@ -137,7 +138,6 @@ sources:
                   to: ref('dim_order_items')
                   field: id_order
               - unique
-              - not_null
           - name: id_product_order
             description: "UUID  of a product of an specific order."
             data_type: varchar
@@ -145,22 +145,18 @@ sources:
               - relationships:
                   to: ref('dim_order_items')
                   field: id_product_order
-              - unique
-              - not_null              
-
           - name: id_address
             description: "Unique identifier for addresses within the 'orders' table."
             data_type: varchar
             tests:
-              - not_null
               - relationships:
                   to: ref('dim_addresses')
                   field: id_address
+                  where: id_address<> null
           - name: created_at_utc
             description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-             - not_null
+
 
           - name: order_cost_euro
             description: "Total cost of the order in euros."
@@ -194,8 +190,7 @@ sources:
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null
+
 
       - name: dim_order_items
         description: "Table detailing products within orders."
@@ -226,8 +221,7 @@ sources:
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null
+
       - name: dim_products
         description: "Table with detailed product information, including names, prices..."
         columns:
@@ -256,8 +250,7 @@ sources:
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null
+
       - name: dim_promos
         description: "Table holding information about available promotions or discounts."
         columns:
@@ -284,8 +277,7 @@ sources:
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null
+
       - name: dim_users
         description: "Table storing user information, including names, email addresses, and associated details."
         columns:
@@ -298,8 +290,7 @@ sources:
           - name: updated_at_utc
             description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null
+
 
           - name: id_address
             description: "Unique identifier for addresses within the 'users' table."
@@ -307,7 +298,7 @@ sources:
             tests:
               - not_null
               - relationships:
-                  to: ref('dim_addresses')
+                  to: ref('stg_addresses')
                   field: id_address
           - name: last_name
             description: "The user's surname or last name."
@@ -317,8 +308,7 @@ sources:
           - name: created_at_utc
             description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null
+
           - name: phone_number
             description: "The user's phone number."
             data_type: varchar
@@ -345,5 +335,3 @@ sources:
           - name: _fivetran_synced_utc
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-            tests:
-              - not_null

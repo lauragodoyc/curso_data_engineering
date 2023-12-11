@@ -8,7 +8,7 @@ with
     renamed2 as (
 
         select
-           {{ dbt_utils.surrogate_key(['promo_id'],['promo_description'],[' discount'],['status']) }} as id_promo,
+           {{ dbt_utils.surrogate_key(['promo_id']) }} as id_promo,
             promo_id as promo_description,
             discount as discount_euro,
             {{ dbt_utils.surrogate_key(['status'])}} as id_status,

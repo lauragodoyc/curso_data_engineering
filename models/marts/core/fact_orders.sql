@@ -10,9 +10,9 @@ with
     renamed as (
 
         select
-            order_items.id_order,
+            orders.id_order,
             order_items.id_product_order,
-            addresses.id_address,
+            decode(addresses.id_address, null, '0', addresses.id_address) as id_address,
             orders.created_at_time_utc,
             orders.created_at_date_utc,
             decode(promos.id_promo,null, 'Not promo', promos.id_promo) as id_promo,
@@ -34,3 +34,4 @@ with
 
 select * 
 from renamed
+ 

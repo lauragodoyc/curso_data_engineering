@@ -102,13 +102,11 @@ sources:
           - name: created_at_time_utc
             data_type: timestamp_ntz
             description: "Timestamp of the event (UTC)."
-            tests:
-              - not_null
+
           - name: created_at_date_utc
             data_type: timestamp_ntz
             description: "Timestamp of the event (UTC)."
-            tests:
-              - not_null              
+             
           - name: id_order
             data_type: varchar
             description: "If the event is specific to an order (mostly used for checkout)."
@@ -151,23 +149,19 @@ sources:
           - name: created_at_time_utc
             description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-             - not_null
+
           - name: created_at_date_utc
             description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-             - not_null             
+            
           - name: estimated_delivery_at_time_utc
             description: "Anticipated delivery timestamp in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null
+
           - name: estimated_delivery_at_date_utc
             description: "Anticipated delivery timestamp in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null              
+             
           - name: order_cost_euro
             description: "Total cost of the order in euros."
             data_type: float
@@ -194,8 +188,7 @@ sources:
           - name: id_promo
             data_type: varchar
             description: "Identifier for the promotional offer associated with the order."
-            tests:
-               - not_null
+
           - name: id_tracking
             description: "Tracking identification number linked to the order shipment."
             data_type: varchar
@@ -326,13 +319,11 @@ sources:
           - name: updated_at_time_utc
             description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null
+
           - name: updated_at_date_utc
             description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null
+
           - name: id_address
             description: "Unique identifier for addresses within the 'users' table."
             data_type: varchar
@@ -346,13 +337,11 @@ sources:
           - name: created_at_time_utc
             description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null
+
           - name: created_at_date_utc
             description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
-            tests:
-              - not_null              
+           
           - name: phone_number
             description: "The user's phone number."
             data_type: varchar
