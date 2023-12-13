@@ -1,25 +1,10 @@
 version: 2
-
-sources:
-  - name: core # name of the source
-    description: Raw data for events demo from SQL_Server Database.
-    schema: core # this is the schema our raw data lives in
-    database: "alumno29_dev_gold_db" # this is the name of our database
-
-    quoting:
-      database: false
-      schema: false
-      identifier: false
-
-    freshness:
-      warn_after: { count: 24, period: hour }
-      error_after: { count: 48, period: hour }
-
-    tables:
-      - name: dim_addresses
+models:
+      - name: base_addresses
         description: "Table containing address information."
+        loaded_at_field: _fivetran_synced
         columns:
-          - name: id_address
+          - name: address_id
             data_type: varchar
             description: "Unique identifier for addresses."
             tests:
@@ -47,22 +32,27 @@ sources:
             tests:
               - not_null
             
-          - name: _fivetran_synced_utc
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
+            tests:
+              - not_null
 
-
-      - name: fact_events
+      - name: base_events
         description: "Data about events in the platform of demo."
-
-       # columns:
-       #   - name: id_event
-        #    data_type: varchar
-        #    description: "UUID of each unique event on the platform."
-        #    tests:
-        #      - unique
-        #      - not_null
+        loaded_at_field: _fivetran_synced
         columns:
+          - name: event_id
+            data_type: varchar
+            description: "UUID of each unique event on the platform."
+            tests:
+              - unique
+              - not_null
           - name: page_url
             data_type: varchar
             description: "URL that the event happened on."
@@ -79,159 +69,154 @@ sources:
                    - "package_shipped"
                    - "add_to_cart"
                    - "page_view"
-          - name: id_session
-            data_type: varchar
-            description: "UUID of each browsing session on the platform which can contain many events."
-            tests:
-              - not_null        
-          - name: id_user
+                  
+          - name: user_id
             data_type: varchar
             description: "UUID of the user that this event is associated with."
             tests:
               - not_null
-              - relationships:
-                  to: ref('dim_users')
-                  field: id_user
-
-          - name: id_product
+          - name: product_id
             data_type: varchar
             description: "If the event is specific to a product."
+          - name: session_id
+            data_type: varchar
+            description: "UUID of each browsing session on the platform which can contain many events."
             tests:
-              - relationships:
-                  to: ref('dim_products')
-                  field: id_product
-                  where: id_product<> 'no product'
-          - name: created_at_utc
+              - not_null
+          - name: created_at
             data_type: timestamp_ntz
             description: "Timestamp of the event (UTC)."
 
-          - name: id_order
+             
+          - name: order_id
             data_type: varchar
             description: "If the event is specific to an order (mostly used for checkout)."
-            tests:
-              - relationships:
-                  to: ref('dim_order_items')
-                  field: id_order
-                  where: id_order<> 'no order'
+
+          - name:  _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
             
-              
-          - name:  id_product_order
-            data_type: varchar
-            description: "UUID  of a product of an specific order."
-            tests:
-              - not_null
-              
-            
-          - name: _fivetran_synced_utc
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
+            tests:
+              - not_null
 
-
-      - name: fact_orders
+      - name: base_orders
         description: "Table recording customer purchase details."
+        loaded_at_field: _fivetran_synced
         columns:
-          - name: id_order
+          - name: order_id
             description: "UUID of the each unique order."
             data_type: varchar
             tests:
-              - relationships:
-                  to: ref('dim_order_items')
-                  field: id_order
               - unique
-          - name: id_product_order
-            description: "UUID  of a product of an specific order."
+              - not_null
+          - name: shipping_service
+            description: "Indicates the shipping company or service provider."
             data_type: varchar
+          - name: shipping_cost
+            description: "Cost of shipping in euros for the order."
+            data_type: float
             tests:
-              - relationships:
-                  to: ref('dim_order_items')
-                  field: id_product_order
-          - name: id_address
+              - dbt_utils.expression_is_true:
+                  expression: " >= 0"
+          - name: address_id
             description: "Unique identifier for addresses within the 'orders' table."
             data_type: varchar
             tests:
-              - relationships:
-                  to: ref('dim_addresses')
-                  field: id_address
-                  where: id_address<> null
-          - name: created_at_utc
+              - not_null
+          - name: created_at
             description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
 
+            
+          - name: estimated_delivery_at
+            description: "Anticipated delivery timestamp in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
 
-          - name: order_cost_euro
+          - name: order_cost
             description: "Total cost of the order in euros."
             data_type: float
             tests:
               - dbt_utils.expression_is_true:
                   expression: " >= 0"
-          - name: id_user
+          - name: user_id
             description: "Unique identifier for users associated with the orders."
             data_type: varchar
-            tests:
-              - relationships:
-                  to: ref('dim_users')
-                  field: id_user
-          - name: order_total_euro
+
+
+          - name: order_total
             description: "The total cost of the order, including items and shipping charges."
             data_type: float
             tests:
               - dbt_utils.expression_is_true:
                   expression: " >= 0"
-
-          - name: id_promo
+          - name: delivered_at
+            description: "Timestamp indicating the delivery time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+      
+          - name: promo_id
             data_type: varchar
             description: "Identifier for the promotional offer associated with the order."
-            tests:
-               - not_null
-               - relationships:
-                   to: ref('dim_promos')
-                   field: id_promo
 
-          - name: _fivetran_synced_utc
+          - name: tracking_id
+            description: "Tracking identification number linked to the order shipment."
+            data_type: varchar
+          - name: status_id
+            description: "Field indicating the status of the order."
+            data_type: varchar
+          - name:  _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
+            
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
+            tests:
+              - not_null
 
-
-      - name: dim_order_items
+      - name: base_order_items
         description: "Table detailing products within orders."
+        loaded_at_field: _fivetran_synced
         columns:
-          - name: id_order
+          - name: order_id
             description: "Identifier unique to each order within the system."
             data_type: varchar
             tests:
               - not_null
-
-          - name: id_product
+          - name: product_id
             description: "Unique identifier for each product within the order."
             data_type: varchar
             tests:
               - not_null
-              - relationships:
-                  field: id_product
-                  to: ref('dim_products')
-          - name: id_product_order
-            tests:
-              - unique 
-              - not_null
+
               
           - name: quantity
             description: "The number of items of a particular product within an order."
             data_type: number
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
 
-          - name: _fivetran_synced_utc
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-
-      - name: dim_products
+            tests:
+              - not_null
+      - name: base_products
         description: "Table with detailed product information, including names, prices..."
+        loaded_at_field: _fivetran_synced
         columns:
-          - name: id_product
+          - name: product_id
             description: varchar
             data_type: "Unique identifier for each product."
             tests:
               - unique
               - not_null
-          - name: price_euro
+          - name: price
             description: float
             data_type: "The price of the product in euros."
             tests:
@@ -246,66 +231,72 @@ sources:
             tests:
               - dbt_utils.expression_is_true:
                   expression: " >= 0"
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
 
-          - name: _fivetran_synced_utc
+            
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-
-      - name: dim_promos
+            tests:
+              - not_null
+      - name: base_promos
         description: "Table holding information about available promotions or discounts."
+        loaded_at_field: _fivetran_synced
         columns:
-          - name:  id_promo
+          - name:  promo_id
             description: "Unique identifier for each promotion."
             data_type: varchar
             tests:
               - unique
               - not_null
-          - name: promo_description
-            description: "Description of the promotion."
-            data_type: varchar
-            tests:
-               - not_null
-          - name: discount_euro
+
+          - name: discount
             description: "The discount amount in euros applied by the promotion."
             data_type: number
             tests:
               - not_null
-          - name: id_status
+          - name: status_id
             description: "Identifier indicating the status of the promotion."
             data_type: varchar
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+
             
-          - name: _fivetran_synced_utc
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
-
-      - name: dim_users
+            tests:
+              - not_null
+      - name: base_users
         description: "Table storing user information, including names, email addresses, and associated details."
+        loaded_at_field: _fivetran_synced
         columns:
-          - name: id_user
+          - name: user_id
             description: "Unique identifier for each user."
             data_type: varchar
             tests:
               - unique
               - not_null
-          - name: updated_at_utc
+          - name: updated_at_time
             description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
 
 
-          - name: id_address
+
+          - name: address_id
             description: "Unique identifier for addresses within the 'users' table."
             data_type: varchar
             tests:
               - not_null
-              - relationships:
-                  to: ref('stg_addresses')
-                  field: id_address
           - name: last_name
             description: "The user's surname or last name."
             data_type: varchar
             tests: 
               - not_null
-          - name: created_at_utc
+          - name: created_at_time
             description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
             data_type: timestamp_tz
 
@@ -314,7 +305,9 @@ sources:
             data_type: varchar
             tests:
               - not_null
-
+          - name: total_orders
+            description: "The total number of orders associated with the user."
+            data_type: number
           - name: first_name
             description: "The user's first name."
             data_type: varchar
@@ -323,15 +316,13 @@ sources:
             data_type: varchar
             tests:
               - not_null
-          - name: total_orders
-            description: "The total amount of orders group by user."
-            data_type: number
-            tests:
-            - relationships:
-                to: ref('dim_users')
-                field: total_orders
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
 
             
-          - name: _fivetran_synced_utc
+          - name: _fivetran_synced
             data_type: timestamp_tz
             description: "Date that the data was loaded."
+            tests:
+              - not_null

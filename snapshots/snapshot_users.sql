@@ -1,13 +1,13 @@
-{% snapshot users_snapshot %}
+{% snapshot snapshot_users %}
 
 {{
     config(
       target_schema='snapshots',
-      unique_key='user_id',
-      strategy='check',
-      check_cols=['first_name', 'last_name', 'phone_number', 'address_id'],
+      unique_key='id_user',
+      strategy='timestamp',
+      updated_at='_fivetran_synced',
       invalidate_hard_deletes=True,
-    )
+    ) 
 }}
 
 select *

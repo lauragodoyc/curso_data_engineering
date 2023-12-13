@@ -1,10 +1,16 @@
-with
+{{ config(
+    materialized='incremental'
+    ) 
+    }}
 
-        
-        source as (
-        select * from {{ ref('stg_orders')}}
-        
-        ),
+WITH fact_orders AS (
+    SELECT * 
+    FROM {{ ref ('stg_orders') }}
+{% if is_incremental() %}
+
+  where _fivetran_synced > (select max(_fivetran_synced) from {{ this }})
+{% endif %}
+    ),
 
 
     renamed as (
@@ -19,9 +25,9 @@ with
             order_cost_euro,
             users.id_user,
             order_total_euro,
-            decode(orders._fivetran_synced, null, '0', orders._fivetran_synced) as _fivetran_synced_utc
+            orders._fivetran_synced
 
-            from {{ ref('stg_orders') }} orders
+            from fact_orders orders
             left join {{ ref('stg_order_items') }} order_items
             on orders.id_order=order_items.id_order
             left join {{ref('stg_addresses')}} addresses 

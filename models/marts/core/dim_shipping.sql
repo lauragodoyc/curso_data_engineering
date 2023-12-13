@@ -19,7 +19,7 @@ renamed as (
         orders.shipping_service,
         orders.shipping_cost_euro,
         orders.id_order,
-        users.id_user
+        decode(users.id_user, null, 'Not user', users.id_user) as id_user
 
     from {{ ref('stg_orders') }} orders
     left join {{ ref('stg_addresses') }} addresses

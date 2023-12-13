@@ -1,10 +1,17 @@
-with 
+{{ config(
+    materialized='incremental'
+    ) 
+    }}
 
-    source as (
+WITH stg_users AS (
+    SELECT * 
+    FROM {{ ref ('stg_users') }}
+{% if is_incremental() %}
 
-    select * from {{ ref('stg_users') }}
-
+  where _fivetran_synced > (select max(_fivetran_synced) from {{ this }})
+{% endif %}
     ),
+
 total_orders as(
     select id_user,
     count(distinct(id_order)) as total_orders
@@ -15,7 +22,7 @@ total_orders as(
 renamed as (
 
     select
-        distinct(users.id_user),
+        users.id_user,
         updated_at_time_utc,
         updated_at_date_utc,
         users.id_address,
@@ -23,15 +30,18 @@ renamed as (
         created_at_time_utc,
         created_at_date_utc,
         phone_number,
-       orders.total_orders,
+        total_orders.total_orders,
         first_name,
         email,
     
-        users._fivetran_synced  as _fivetran_synced_utc
+        _fivetran_synced  
 
-    from {{ ref('stg_users') }} users
-    left join total_orders orders
-    on orders.id_user=users.id_user
+    from stg_users users
+    left join total_orders 
+    on users.id_user=total_orders.id_user
+    
+   
+
 )
 
 select * from renamed

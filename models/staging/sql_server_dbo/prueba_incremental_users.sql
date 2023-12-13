@@ -5,9 +5,9 @@
     }}
 
 
-WITH orders AS (
+WITH users AS (
     SELECT * 
-    FROM {{ ref('stg_orders') }} 
+    FROM {{ ref('stg_users') }} 
 {% if is_incremental() %}
 
 	  where _fivetran_synced > (select max(_fivetran_synced) from {{ this }})
@@ -21,7 +21,7 @@ WITH orders AS (
 
         select *
 
-        from  orders
+        from  users
     )
 
 select * 

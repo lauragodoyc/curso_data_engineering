@@ -17,98 +17,215 @@ sources:
 
     tables:
       - name: addresses
-       
+        description: "Table containing address information."
         loaded_at_field: _fivetran_synced
         columns:
           - name: address_id
-          - name: zipcode            
-          - name: country            
-          - name: address            
-          - name: state            
-          - name: _fivetran_deleted           
+            data_type: varchar
+            description: "Unique identifier for addresses."
+          - name: zipcode
+            data_type: number
+            description: "Postal code used to identify specific geographical areas."
+          - name: country
+            data_type: varchar
+            description: "Specifies the country associated with an address."
+          - name: address
+            data_type: varchar
+            description: "Physical location details."
+          - name: state
+            data_type: varchar
+            description: "Region or administrative division within a country."
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."            
           - name: _fivetran_synced
-
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
 
       - name: events
-        description: Data about events in the platform of demo.
+        description: "Data about events in the platform of demo."
         loaded_at_field: _fivetran_synced
         columns:
           - name: event_id
+            data_type: varchar
+            description: "UUID of each unique event on the platform."
           - name: page_url
+            data_type: varchar
+            description: "URL that the event happened on."
           - name: event_type
+            data_type: varchar
+            description: "Type of event."
           - name: user_id
+            data_type: varchar
+            description: "UUID of the user that this event is associated with."
           - name: product_id
+            data_type: varchar
+            description: "If the event is specific to a product."
           - name: session_id
+            data_type: varchar
+            description: "UUID of each browsing session on the platform which can contain many events."
           - name: created_at
-          - name: order_id              
-          - name: _fivetran_deleted
+            data_type: timestamp_ntz
+            description: "Timestamp of the event (UTC)."
+          - name: order_id
+            data_type: varchar
+            description: "If the event is specific to an order (mostly used for checkout)."
+          - name:  _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
           - name: _fivetran_synced
-
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
 
       - name: orders
+        description: "Table recording customer purchase details."
         loaded_at_field: _fivetran_synced
         columns:
           - name: order_id
-          - name: shipping_service           
+            description: "UUID of the each unique order."
+            data_type: varchar
+          - name: shipping_service
+            description: "Indicates the shipping company or service provider."
+            data_type: varchar
           - name: shipping_cost
+            description: "Cost of shipping in euros for the order."
+            data_type: float
           - name: address_id
+            description: "Unique identifier for addresses within the 'orders' table."
+            data_type: varchar
           - name: created_at
+            description: "Timestamp indicating the creation time of the order in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
           - name: estimated_delivery_at
+            description: "Anticipated delivery timestamp in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
           - name: order_cost
+            description: "Total cost of the order in euros."
+            data_type: float
           - name: user_id
+            description: "Unique identifier for users associated with the orders."
+            data_type: varchar
           - name: order_total
+            description: "The total cost of the order, including items and shipping charges."
+            data_type: float
           - name: delivered_at
-          - name: tacking_id
-          - name: status
-          - name: _fivetran_deleted
+            description: "Timestamp indicating the delivery time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
+          - name: promo_id
+            data_type: varchar
+            description: "Identifier for the promotional offer associated with the order."
+          - name: tracking_id
+            description: "Tracking identification number linked to the order shipment."
+            data_type: varchar
+          - name: status_id
+            description: "Field indicating the status of the order."
+            data_type: varchar
+          - name:  _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
           - name: _fivetran_synced
-
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
 
       - name: order_items
+        description: "Table detailing products within orders."
         loaded_at_field: _fivetran_synced
         columns:
-          - name: concat(order_id, product_id)
-          - name: quantity
-          - name: _fivetran_deleted
-          - name: _fivetran_synced
+          - name: order_id
+            description: "Identifier unique to each order within the system."
+            data_type: varchar
+          - name: product_id
+            description: "Unique identifier for each product within the order."
+            data_type: varchar
 
+              
+          - name: quantity
+            description: "The number of items of a particular product within an order."
+            data_type: number
+          - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
+          - name: _fivetran_synced
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
 
       - name: products
+        description: "Table with detailed product information, including names, prices..."
         loaded_at_field: _fivetran_synced
         columns:
           - name: product_id
+            description: varchar
+            data_type: "Unique identifier for each product."
           - name: price
+            description: float
+            data_type: "The price of the product in euros."
           - name: name
+            description: "The name of the product."
+            data_type: varchar
           - name: inventory
+            description: "The available quantity of the product in stock."
+            data_type: number
           - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
           - name: _fivetran_synced
-
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
 
       - name: promos
+        description: "Table holding information about available promotions or discounts."
         loaded_at_field: _fivetran_synced
         columns:
-          - name: promo_id
-          - name: promo_name
+          - name:  promo_id
+            description: "Unique identifier for each promotion."
+            data_type: varchar
           - name: discount
-          - name: status
+            description: "The discount amount in euros applied by the promotion."
+            data_type: number
+          - name: status_id
+            description: "Identifier indicating the status of the promotion."
+            data_type: varchar
           - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
           - name: _fivetran_synced
-
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."
 
       - name: users
+        description: "Table storing user information, including names, email addresses, and associated details."
         loaded_at_field: _fivetran_synced
         columns:
           - name: user_id
-          - name: updated_at
+            description: "Unique identifier for each user."
+            data_type: varchar
+          - name: updated_at_time
+            description: "Timestamp indicating the last update time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
           - name: address_id
+            description: "Unique identifier for addresses within the 'users' table."
+            data_type: varchar
           - name: last_name
-          - name: created_at
+            description: "The user's surname or last name."
+            data_type: varchar
+          - name: created_at_time
+            description: "Timestamp indicating the creation time in Coordinated Universal Time (UTC)."
+            data_type: timestamp_tz
           - name: phone_number
+            description: "The user's phone number."
+            data_type: varchar
           - name: total_orders
+            description: "The total number of orders associated with the user."
+            data_type: number
           - name: first_name
+            description: "The user's first name."
+            data_type: varchar
           - name: email
+            description: "The user's email address."
+            data_type: varchar
           - name: _fivetran_deleted
+            data_type: timestamp_tz
+            description: "Date that the data was deleted."
           - name: _fivetran_synced
-
-
-
+            data_type: timestamp_tz
+            description: "Date that the data was loaded."

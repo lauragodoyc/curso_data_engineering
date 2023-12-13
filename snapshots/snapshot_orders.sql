@@ -1,10 +1,10 @@
-{% snapshot orders_snapshot %}
+{% snapshot snapshot_orders %}
 {{ 
     config(
       target_schema='snapshots',
       unique_key='id_order',
-      strategy='check',
-      check_cols=['id_order', 'shipping_service', 'shipping_cost', 'id_address'],
+      strategy='timestamp',
+      updated_at='_fivetran_synced',
       invalidate_hard_deletes=True,
     ) 
     }}
